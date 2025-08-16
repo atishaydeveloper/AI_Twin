@@ -8,15 +8,18 @@ from langchain.chains import RetrievalQA
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from load_dotenv import load_dotenv
 import asyncio
 import traceback
+import os
 
 try:
     asyncio.get_running_loop()
 except RuntimeError:
     asyncio.set_event_loop(asyncio.new_event_loop())
 
-GOOGLE_API_KEY = "AIzaSyDbgnmMJf4exJEloQa-tcEMszOhGFSsOGk"
+load_dotenv()
+google_api_key = os.getenv("GOOGLE_API_KEY")
 
 with open("ashu_info.txt", "r", encoding="utf-8") as file:
     content = file.read()
@@ -31,15 +34,15 @@ texts = text_splitter.split_text(content)
 # Create embeddings
 embeddings = GoogleGenerativeAIEmbeddings(
     model="models/embedding-001",
-    google_api_key=GOOGLE_API_KEY
+    google_api_key=google_api_key
 )
 
-# Build vector store
-vector_store = FAISS.from_texts(texts, embeddings)
+# # Build vector store
+# vector_store = FAISS.from_texts(texts, embeddings)
 
-# Save to disk
-vector_store.save_local("ashu_vector_store")
-print("Vector store saved.")
+# # Save to disk
+# vector_store.save_local("ashu_vector_store")
+# print("Vector store saved.")
 
 class qresponse:
     def __init__(self):
@@ -48,24 +51,24 @@ class qresponse:
         self.llm_social = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
             temperature=0.7,
-            google_api_key=GOOGLE_API_KEY
+            google_api_key=google_api_key
         )
 
         self.llm_info = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
             temperature=0,
-            google_api_key=GOOGLE_API_KEY
+            google_api_key=google_api_key
         )
 
         self.llm_classify = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
             temperature=0,
-            google_api_key=GOOGLE_API_KEY
+            google_api_key=google_api_key
         )
 
         embeddings = GoogleGenerativeAIEmbeddings(
             model="models/embedding-001",
-            google_api_key=GOOGLE_API_KEY
+            google_api_key=google_api_key
         )
         self.vector_store = FAISS.load_local(
             "ashu_vector_store",
